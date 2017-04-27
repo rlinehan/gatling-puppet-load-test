@@ -1,0 +1,113 @@
+node {
+    checkout scm
+    pipeline = load 'jenkins-integration/jenkins-jobs/common/scripts/jenkins/pipeline.groovy'
+}
+
+def http_client_metrics_enabled_base_config() {
+    [server_version: [
+             type: "pe",
+             pe_version: "2017.3",
+             find_latest: true
+     ],
+     code_deploy: [
+             type: "r10k",
+             control_repo: "git@github.com:rlinehan/puppetlabs-puppetserver_perf_control.git",
+             basedir: "/etc/puppetlabs/code-staging/environments", environments: ["production"],
+             hiera_config_source_file: "/etc/puppetlabs/code-staging/environments/production/root_files/hiera.yaml"
+     ],
+     server_java_args: "-Xms12g -Xmx12g",
+     puppet_settings: [
+             master: [
+                     "static_catalogs": "false"
+             ]
+     ],
+     background_scripts: [
+             "./jenkins-jobs/common/scripts/background/curl-server-metrics-loop.sh"
+     ],
+     archive_sut_files: [
+             "/var/log/puppetlabs/puppetserver/metrics.json"
+     ],
+     hocon_settings: [
+             [
+               file: "/etc/puppetlabs/puppetserver/conf.d/pe-puppet-server.conf",
+               path: "http-client.metrics-enabled",
+               value: "true"
+             ]
+     ]
+  ]
+}
+
+def http_client_metrics_disabled_base_config() {
+    [server_version: [
+             type: "pe",
+             pe_version: "2017.3",
+             find_latest: true
+     ],
+     code_deploy: [
+             type: "r10k",
+             control_repo: "git@github.com:rlinehan/puppetlabs-puppetserver_perf_control.git",
+             basedir: "/etc/puppetlabs/code-staging/environments",
+             environments: ["production"],
+             hiera_config_source_file: "/etc/puppetlabs/code-staging/environments/production/root_files/hiera.yaml"
+     ],
+     server_java_args: "-Xms12g -Xmx12g",
+     background_scripts: [
+             "./jenkins-jobs/common/scripts/background/curl-server-metrics-loop.sh"
+     ],
+     archive_sut_files: [
+             "/var/log/puppetlabs/puppetserver/metrics.json"
+     ],
+     hocon_settings: [
+             [
+               file: "/etc/puppetlabs/puppetserver/conf.d/pe-puppet-server.conf",
+               path: "http-client.metrics-enabled",
+               value: "false"
+             ]
+     ]
+  ]
+}
+
+http_client_metrics_disabled_250 = http_client_metrics_disabled_base_config()
+http_client_metrics_disabled_250.put('job_name', 'pe-http-client-metrics-disabled-250')
+http_client_metrics_disabled_250.put('gatling_simulation_config', '../simulation-runner/config/scenarios/pe-couch-medium-250-2-hours.json')
+
+http_client_metrics_enabled_250 = http_client_metrics_enabled_base_config()
+http_client_metrics_enabled_250.put('job_name', 'pe-http-client-metrics-enabled-250')
+http_client_metrics_enabled_250.put('gatling_simulation_config', '../simulation-runner/config/scenarios/pe-couch-medium-250-2-hours.json')
+
+http_client_metrics_disabled_500 = http_client_metrics_disabled_base_config()
+http_client_metrics_disabled_500.put('job_name', 'pe-http-client-metrics-disabled-500')
+http_client_metrics_disabled_500.put('gatling_simulation_config', '../simulation-runner/config/scenarios/pe-couch-medium-500-2-hours.json')
+
+http_client_metrics_enabled_500 = http_client_metrics_enabled_base_config()
+http_client_metrics_enabled_500.put('job_name', 'pe-http-client-metrics-enabled-500')
+http_client_metrics_enabled_500.put('gatling_simulation_config', '../simulation-runner/config/scenarios/pe-couch-medium-500-2-hours.json')
+
+http_client_metrics_disabled_1000 = http_client_metrics_disabled_base_config()
+http_client_metrics_disabled_1000.put('job_name', 'pe-http-client-metrics-disabled-1000')
+http_client_metrics_disabled_1000.put('gatling_simulation_config', '../simulation-runner/config/scenarios/pe-couch-medium-1000-2-hours.json')
+
+http_client_metrics_enabled_1000 = http_client_metrics_enabled_base_config()
+http_client_metrics_enabled_1000.put('job_name', 'pe-http-client-metrics-enabled-1000')
+http_client_metrics_enabled_1000.put('gatling_simulation_config', '../simulation-runner/config/scenarios/pe-couch-medium-1000-2-hours.json')
+
+http_client_metrics_disabled_1250 = http_client_metrics_disabled_base_config()
+http_client_metrics_disabled_1250.put('job_name', 'pe-http-client-metrics-disabled-1250')
+http_client_metrics_disabled_1250.put('gatling_simulation_config', '../simulation-runner/config/scenarios/pe-couch-medium-1250-2-hours.json')
+
+http_client_metrics_enabled_1250 = http_client_metrics_enabled_base_config()
+http_client_metrics_enabled_1250.put('job_name', 'pe-http-client-metrics-enabled-1250')
+http_client_metrics_enabled_1250.put('gatling_simulation_config', '../simulation-runner/config/scenarios/pe-couch-medium-1250-2-hours.json')
+
+pipeline.multipass_pipeline([
+    http_client_metrics_disabled_500,
+    http_client_metrics_enabled_500,
+    http_client_metrics_disabled_1000,
+    http_client_metrics_enabled_1000,
+    http_client_metrics_disabled_1250,
+    http_client_metrics_enabled_1250
+])
+    // http_client_metrics_enabled_250,
+    // http_client_metrics_disabled_1000,
+    // http_client_metrics_enabled_1000,
+    // http_client_metrics_disabled_1250
