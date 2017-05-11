@@ -8,7 +8,8 @@ pipeline.single_pipeline([
         gatling_simulation_config: '../simulation-runner/config/scenarios/pe-couch-medium-3.json',
         server_version: [
                 type: "pe",
-                pe_version: "2016.2.1"
+                pe_version: "2017.3"
+                find_latest: true
         ],
         code_deploy: [
                 type: "r10k",
@@ -17,11 +18,13 @@ pipeline.single_pipeline([
                 environments: ["production"],
                 hiera_config_source_file: "/etc/puppetlabs/code-staging/environments/production/root_files/hiera.yaml"
         ],
-        server_java_args: "-Xms12g -Xmx12g",
+        server_java_args: "-Xms4g -Xmx4g",
         background_scripts: [
-                "./jenkins-jobs/common/scripts/background/curl-server-metrics-loop.sh"
+                "./jenkins-jobs/common/scripts/background/curl-server-metrics-loop.sh",
+                "./jenkins-jobs/common/scripts/background/curl-puppetdb-metrics-loop.sh"
         ],
         archive_sut_files: [
-                "/var/log/puppetlabs/puppetserver/metrics.json"
+                "/var/log/puppetlabs/puppetserver/metrics.json",
+                "/var/log/puppetlabs/puppetdb/pdb-metrics.json"
         ]
 ])
