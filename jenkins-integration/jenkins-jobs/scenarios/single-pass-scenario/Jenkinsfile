@@ -25,6 +25,6 @@ pipeline.single_pipeline([
         ],
         archive_sut_files: [
                 "/var/log/puppetlabs/puppetserver/metrics.json",
-                "/var/log/puppetlabs/puppetdb/pdb-metrics.json"
+                "/var/log/puppetlabs/puppetdb/pdb-metrics.json.gz"
         ]
 ])
