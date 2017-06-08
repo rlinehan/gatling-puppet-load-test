@@ -91,6 +91,7 @@ def get_oss_server_era(oss_version) {
             return [type: "oss",
                     service_name: "puppetserver",
                     version: oss_version,
+                    // HERE
                     agent_version: "latest",
                     tk_auth: true,
                     puppet_bin_dir: "/opt/puppetlabs/puppet/bin",

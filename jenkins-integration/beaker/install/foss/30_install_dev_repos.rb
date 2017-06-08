@@ -46,6 +46,7 @@ def get_latest_master_version(branch)
 end
 
 def get_latest_agent_version
+  # this too... maybe? or just make sure it knows how to pull from nightlies
   response = Net::HTTP.get(URI(BASE_URL + '/puppet-agent/?C=M&O=D'))
 
   # Scrape the puppet-agent repo page for available puppet-agent builds and
@@ -75,6 +76,7 @@ step "Setup Puppet Server repositories." do
 end
 
 step "Setup Puppet repositories" do
+  # HERE
   puppet_agent_version = ENV['PUPPET_AGENT_VERSION']
   if puppet_agent_version == "latest"
     puppet_agent_version = get_latest_agent_version()
